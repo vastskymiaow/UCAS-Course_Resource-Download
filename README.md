@@ -6,7 +6,7 @@ python 3.5.6
 * requests
 * bs4
 
-安装上述依赖包
+安装上述依赖包  
 `pip install configparser`   
 `pip install bs4`  
 `pip install requests`  
@@ -24,6 +24,7 @@ python 3.5.6
 首次运行脚本需要输入密码，再次登陆无需输入。
 
 ## 程序截图
-![avatar](screenshot1.png)
-![avatar](screenshot2.png)
-![avatar](screenshot3.png)
+
+![avatar](screenshot1.png)  
+![avatar](screenshot2.png)  
+![avatar](screenshot3.png)  
