@@ -148,9 +148,9 @@ def get_subfolder_file(session, path, resource_bsObj, course_url, function_url, 
 
         resource_name = parse.unquote(resource_url[-temp_list.index('/'):])
 
+        print('[INFO]:切换至\t' + path + '\n')
         print('[INFO]:即将下载\t' + str(resource_name))
 
-        print('[INFO]:切换至\t' + path + '\n')
         download_files(session, path, resource_name, resource_url)
     return None
 
@@ -305,7 +305,7 @@ if __name__ == '__main__':
             print('[INFO]:即将下载\t' + str(resource_name))
             download_files(session, path, resource_name, resource_url)
 
-        print('[INFO]: 程序已经执行完毕！')
+    print('[INFO]: 程序已经执行完毕！')
 
 
 
