@@ -62,7 +62,7 @@ def download_files(session, path, resource_name, resource_url):
 
     isExists = os.path.exists(file_path)
     if isExists:
-        print('[INFO]:文件\t%s\t已下载，跳过该文件' % resource_name + '\n')
+        print('[INFO]:跳过文件\t%s\t，该文件已下载' % resource_name + '\n')
         return
     file = open(file_path, 'wb')
 
@@ -107,8 +107,8 @@ def get_subfolder_file(session, path, resource_bsObj, course_url, function_url, 
     temp_list = list(collectionId[::-1])
     temp_list.pop(0)
 
-    sub_folder_name = collectionId[-temp_list.index('/')-1: -1]
-    # sub_folder_name = str(resource_bsObj.label.contents)[6:-2]
+    # sub_folder_name = collectionId[-temp_list.index('/')-1: -1]
+    sub_folder_name = str(resource_bsObj.label.contents)[6:-2]
     path = path + '/' + sub_folder_name
     isExists = os.path.exists(path)
     if not isExists:
@@ -118,35 +118,39 @@ def get_subfolder_file(session, path, resource_bsObj, course_url, function_url, 
     data = {'source': '0', 'collectionId': collectionId, 'navRoot': '', 'criteria': 'title',
             'sakai_action': 'doNavigate', 'rt_action': '', 'selectedItemId': '', 'itemHidden': 'false',
             'itemCanRevise': 'false', 'sakai_csrf_token': sakai_csrf_token}
-    # print(function_url)
+
     s = session.post(function_url, data=data, allow_redirects=True)
-    #print(s.content)
 
     sub_resource_bsObj = BeautifulSoup(s.text, 'html.parser')
     # sub_resource_bsObj = sub_resource_bsObj.encode('ASCII')
     # sub_resource_bsObj = sub_resource_bsObj.encode('UTF-8')
     resource_url_bsObj_set = sub_resource_bsObj.find_all('td', {'class': 'specialLink title'})
-    # print(resource_url_bsObj_set)
     resource_url_bsObj_set.pop(0)
-    sub_resource_bsObj_list = resource_bsObj.find_all('td', {'class': 'attach', 'headers': 'checkboxes'})
+
+    sub_resource_bsObj_list = sub_resource_bsObj.find_all('td', {'class': 'attach', 'headers': 'checkboxes'})
     if sub_resource_bsObj_list:
         sub_resource_bsObj_list.pop(0)
+    # print(sub_resource_bsObj_list)
+
     for resource in resource_url_bsObj_set:
         resource_url = resource.find('a').get('href')
         if resource_url == '#':
+
             get_subfolder_file(session, path, sub_resource_bsObj_list[0], course_url, function_url, sakai_csrf_token)
             sub_resource_bsObj_list.pop(0)
             continue
-        # print(resource)
+        # extract the resource name from <span>
         # resource_name = resource.find('span', {'class': 'hidden-sm hidden-xs'}).contents
         # resource_name = str(resource_name)[2:-2]
-        temp_list = list(resource_url[::-1])
-        # print(temp_list)
-        resource_name = parse.unquote(resource_url[-temp_list.index('/'):])
-        # print(resource_name)
-        print('[INFO]:即将下载\t' + str(resource_name))
-        # print(resource_url)
 
+        # extract the resource name from 'resource_url'
+        temp_list = list(resource_url[::-1])
+
+        resource_name = parse.unquote(resource_url[-temp_list.index('/'):])
+
+        print('[INFO]:即将下载\t' + str(resource_name))
+
+        print('[INFO]:切换至\t' + path + '\n')
         download_files(session, path, resource_name, resource_url)
     return None
 
@@ -282,21 +286,26 @@ if __name__ == '__main__':
         function_url = resource_bsObj.find('form').get('action')
         # to get the sakai_csrf_token which is a param of the post packets in HTTP requests
         sakai_csrf_token = resource_bsObj.find('input', {'name': 'sakai_csrf_token'}).get('value')
-        print(path)
+        print('[INFO]:切换至\t' + path + '\n')
         for resource in resource_url_bsObj_set:
             resource_url = resource.find('a').get('href')
             if resource_url == '#':
 
                 get_subfolder_file(session, path, sub_resource_bsObj_list[0], course_url, function_url, sakai_csrf_token)
-                # get_subfolder_file(session, path, resource_bsObj)
+
                 sub_resource_bsObj_list.pop(0)
                 continue
-            resource_name = resource.find('span', {'class': 'hidden-sm hidden-xs'}).contents
-            resource_name = str(resource_name)[2:-2]
-            print('[INFO]:即将下载\t' + str(resource_name))
-            # print(resource_url)
+            # print(resource)
+            # resource_name = resource.find('span', {'class': 'hidden-sm hidden-xs'}).contents
+            # resource_name = str(resource_name)[2:-2]
 
+            temp_list = list(resource_url[::-1])
+            resource_name = parse.unquote(resource_url[-temp_list.index('/'):])
+
+            print('[INFO]:即将下载\t' + str(resource_name))
             download_files(session, path, resource_name, resource_url)
+
+        print('[INFO]: 程序已经执行完毕！')
 
 
 
